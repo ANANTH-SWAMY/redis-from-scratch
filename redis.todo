@@ -1,0 +1,9 @@
+[] SET
+[] GET
+[] MSET
+[] MGET
+[] PING
+[] EXISTS
+[] DEL
+[] FLUSH
+[] QUIT / EXIT
