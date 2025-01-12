@@ -11,6 +11,7 @@ const (
 	INTEGER = ':'
 	BULK = '$'
 	ARRAY = '*'
+	NULL = '_'
 )
 
 type Value struct {
@@ -150,6 +151,15 @@ func writeError(v Value) []byte {
 	return bytes
 }
 
+func writeNull() []byte {
+	bytes := make([]byte, 0)
+
+	bytes = append(bytes, NULL)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
 func writeRESP(v Value) []byte {
 	dataType := v.typ
 
@@ -160,6 +170,8 @@ func writeRESP(v Value) []byte {
 		return writeBulk(v)
 	case "error":
 		return writeError(v)
+	case "null":
+		return writeNull()
 	default:
 		return make([]byte, 0)
 	}

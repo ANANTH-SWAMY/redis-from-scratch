@@ -51,6 +51,7 @@ func main() {
 
 		handler, ok := handlers[command]
 		if !ok {
+			// change later
 			connection.Write(writeRESP(Value{typ: "string", str: "OK"}))
 			continue
 		}
