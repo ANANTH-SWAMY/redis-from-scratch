@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	STRING = "+"
-	ERROR = "-"
-	INTEGER = ":"
-	BULK = "$"
-	ARRAY = "*"
+	STRING = '+'
+	ERROR = '-'
+	INTEGER = ':'
+	BULK = '$'
+	ARRAY = '*'
 )
 
 type Value struct {
@@ -108,12 +108,47 @@ func parse(r *strings.Reader) (Value, error) {
 		return Value{}, err
 	}
 
-	switch string(dataType) {
+	switch dataType {
 	case ARRAY:
 		return readArray(r)
 	case BULK:
 		return readBulk(r)
 	default:
 		return Value{}, nil
+	}
+}
+
+func writeString(v Value) []byte {
+	bytes := make([]byte, 0)
+
+	bytes = append(bytes, STRING)
+	bytes = append(bytes, v.str...)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
+func writeBulk(v Value) []byte {
+	bytes := make([]byte, 0)
+
+	bytes = append(bytes, BULK)
+	bytes = append(bytes, strconv.Itoa(len(v.bulk))...)
+	bytes = append(bytes, '\r', '\n')
+	bytes = append(bytes, v.bulk...)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
+func writeRESP(v Value) []byte {
+	dataType := v.typ
+
+	switch dataType {
+	case "string": 
+		return writeString(v)
+	case "bulk":
+		return writeBulk(v)
+	default:
+		return make([]byte, 0)
 	}
 }

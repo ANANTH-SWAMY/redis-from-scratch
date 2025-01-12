@@ -46,9 +46,16 @@ func main() {
 			return
 		}
 
-		fmt.Println(v) // temp
+		command := strings.ToUpper(v.array[0].bulk)
+		args := v.array[1:]
 
-		connection.Write([]byte("+OK\r\n"))
+		handler, ok := handlers[command]
+		if !ok {
+			connection.Write(writeRESP(Value{typ: "string", str: "OK"}))
+			continue
+		}
+
+		result := handler(args)
+		connection.Write(writeRESP(result))
 	}
 }
-

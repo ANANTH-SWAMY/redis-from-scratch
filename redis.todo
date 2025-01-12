@@ -2,8 +2,9 @@
 [] GET
 [] MSET
 [] MGET
-[] PING
+[-] PING
 [] EXISTS
 [] DEL
 [] FLUSH
-[] QUIT / EXIT
+[x] QUIT / EXIT
+[] Placeholder for COMMAND and DOCS
