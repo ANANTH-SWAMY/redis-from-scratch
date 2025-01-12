@@ -4,6 +4,7 @@ var handlers = map[string] func([]Value) Value {
 	"PING": ping,
 	"SET": set,
 	"GET": get,
+	"EXISTS": exists,
 }
 
 var store = make(map[string]string)
@@ -80,9 +81,13 @@ func get(args []Value) Value {
 	}
 
 	v := Value{
-		typ: "string",
-		str: value,
+		typ: "bulk",
+		bulk: value,
 	}
 
 	return v
+}
+
+func exists(args []Value) Value {
+	return Value{}
 }

@@ -15,11 +15,11 @@ const (
 )
 
 type Value struct {
-	typ   string
-	str   string
-	num   int
-	bulk  string
-	array []Value
+	typ      string
+	str      string
+	integer  int
+	bulk     string
+	array    []Value
 }
 
 func readLine(r *strings.Reader) ([]byte, int, error) {
@@ -141,6 +141,16 @@ func writeBulk(v Value) []byte {
 	return bytes
 }
 
+func writeInteger(v Value) []byte {
+	bytes := make([]byte, 0)
+
+	bytes = append(bytes, INTEGER)
+	bytes = append(bytes, strconv.Itoa(v.integer)...)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
 func writeError(v Value) []byte {
 	bytes := make([]byte, 0)
 
@@ -166,12 +176,19 @@ func writeRESP(v Value) []byte {
 	switch dataType {
 	case "string": 
 		return writeString(v)
+
 	case "bulk":
 		return writeBulk(v)
+
+	case "integer":
+		return writeInteger(v)
+
 	case "error":
 		return writeError(v)
+
 	case "null":
 		return writeNull()
+
 	default:
 		return make([]byte, 0)
 	}
