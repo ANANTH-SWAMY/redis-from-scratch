@@ -140,6 +140,16 @@ func writeBulk(v Value) []byte {
 	return bytes
 }
 
+func writeError(v Value) []byte {
+	bytes := make([]byte, 0)
+
+	bytes = append(bytes, ERROR)
+	bytes = append(bytes, v.str...)
+	bytes = append(bytes, '\r', '\n')
+
+	return bytes
+}
+
 func writeRESP(v Value) []byte {
 	dataType := v.typ
 
@@ -148,6 +158,8 @@ func writeRESP(v Value) []byte {
 		return writeString(v)
 	case "bulk":
 		return writeBulk(v)
+	case "error":
+		return writeError(v)
 	default:
 		return make([]byte, 0)
 	}

@@ -14,7 +14,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("Listening on port 6379")
+	fmt.Println("Listening on port 6379...")
 
 	connection, err := listener.Accept()
 	if err != nil {
