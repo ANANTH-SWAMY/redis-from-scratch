@@ -1,14 +1,15 @@
 package main
 
+import (
+	"sync"
+)
+
 var handlers = map[string] func([]Value) Value {
 	"PING": ping,
 	"SET": set,
 	"GET": get,
 	"EXISTS": exists,
-	"COMMAND": del,
 }
-
-var store = make(map[string]string)
 
 func ping(args []Value) Value {
 	if len(args) == 0 {
@@ -37,6 +38,9 @@ func ping(args []Value) Value {
 	return v
 }
 
+var store = make(map[string]string)
+var storeMu = sync.RWMutex{}
+
 func set(args []Value) Value {
 	if len(args) != 2 {
 		v := Value{
@@ -50,7 +54,9 @@ func set(args []Value) Value {
 	key := args[0].bulk
 	value := args[1].bulk
 
+	storeMu.Lock()
 	store[key] = value
+	storeMu.Unlock()
 
 	v := Value{
 		typ: "string",
@@ -72,7 +78,10 @@ func get(args []Value) Value {
 
 	key := args[0].bulk
 
+	storeMu.RLock()
 	value, ok := store[key]
+	storeMu.RUnlock()
+
 	if !ok {
 		v := Value{
 			typ: "null",
@@ -103,7 +112,9 @@ func exists(args []Value) Value {
 	for i := 0; i < len(args); i++ {
 		key := args[i].bulk
 
+		storeMu.RLock()
 		_, ok := store[key]
+		storeMu.RUnlock()
 
 		if ok {
 			count++
@@ -119,5 +130,5 @@ func exists(args []Value) Value {
 }
 
 func del(args []Value) Value {
-	return Value{typ: "string", str: "OK"}
+	return Value{}
 }
