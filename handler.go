@@ -70,9 +70,9 @@ func get(args []Value) Value {
 	}
 
 	key := args[0].bulk
-	value := store[key]
 
-	if value == "" {
+	value, ok := store[key]
+	if !ok {
 		v := Value{
 			typ: "null",
 		}
@@ -89,5 +89,30 @@ func get(args []Value) Value {
 }
 
 func exists(args []Value) Value {
-	return Value{}
+	if len(args) == 0 {
+		v := Value{
+			typ: "error",
+			str: "ERR wrong number of arguments for command",
+		}
+
+		return v
+	}
+
+	count := 0
+	for i := 0; i < len(args); i++ {
+		key := args[i].bulk
+
+		_, ok := store[key]
+
+		if ok {
+			count++
+		}
+	}
+
+	v := Value{
+		typ: "integer",
+		integer: count,
+	}
+	
+	return v
 }
