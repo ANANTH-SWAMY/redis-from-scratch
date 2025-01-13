@@ -3,7 +3,7 @@
 [] MSET
 [] MGET
 [x] PING
-[] EXISTS
+[x] EXISTS
 [] DEL
 [] FLUSH
 [x] QUIT / EXIT

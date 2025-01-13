@@ -22,7 +22,7 @@ func ping(args []Value) Value {
 	if len(args) > 1 {
 		v := Value{
 			typ: "error",
-			str: "wrong number of arguments for 'ping' command",
+			str: "ERR wrong number of arguments for 'ping' command",
 		}
 
 		return v
@@ -40,7 +40,7 @@ func set(args []Value) Value {
 	if len(args) != 2 {
 		v := Value{
 			typ: "error",
-			str: "ERR wrong number of arguments for command",
+			str: "ERR wrong number of arguments for 'set' command",
 		}
 
 		return v
@@ -63,7 +63,7 @@ func get(args []Value) Value {
 	if len(args) != 1 {
 		v := Value{
 			typ: "error",
-			str: "ERR wrong number of arguments for command",
+			str: "ERR wrong number of arguments for 'get' command",
 		}
 
 		return v
@@ -92,7 +92,7 @@ func exists(args []Value) Value {
 	if len(args) == 0 {
 		v := Value{
 			typ: "error",
-			str: "ERR wrong number of arguments for command",
+			str: "ERR wrong number of arguments for 'exists' command",
 		}
 
 		return v
@@ -115,4 +115,8 @@ func exists(args []Value) Value {
 	}
 	
 	return v
+}
+
+func del() {
+	//
 }
