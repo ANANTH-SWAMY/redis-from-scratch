@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"bufio"
 	"net"
 	"strings"
 )
@@ -25,22 +25,9 @@ func main() {
 	defer connection.Close()
 
 	for {
-		buffer := make([]byte, 1024)
+		resp := bufio.NewReader(connection)
 
-		_, err := connection.Read(buffer)
-		if err != nil {
-
-			if err != io.EOF {
-				fmt.Println("Unable to read:", err)
-			}
-
-			fmt.Println("End")
-			break
-		}
-
-		r := strings.NewReader(string(buffer))
-
-		v, err := parse(r)
+		v, err := parse(resp)
 		if err != nil {
 			fmt.Println(err)
 			return

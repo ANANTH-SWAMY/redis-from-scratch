@@ -1,7 +1,7 @@
 package main
 
 import (
-	"strings"
+	"bufio"
 	"strconv"
 )
 
@@ -22,7 +22,7 @@ type Value struct {
 	array    []Value
 }
 
-func readLine(r *strings.Reader) ([]byte, int, error) {
+func readLine(r *bufio.Reader) ([]byte, int, error) {
 	numberBuffer := make([]byte, 0)
 	n := 0
 
@@ -44,7 +44,7 @@ func readLine(r *strings.Reader) ([]byte, int, error) {
 	return numberBuffer, n, nil
 }
 
-func readInteger(r *strings.Reader) (int, error) {
+func readInteger(r *bufio.Reader) (int, error) {
 	integer, _, err := readLine(r)
 	if err != nil {
 		return 0, err
@@ -58,7 +58,7 @@ func readInteger(r *strings.Reader) (int, error) {
 	return lengthInt, nil
 }
 
-func readArray(r *strings.Reader) (Value, error) {
+func readArray(r *bufio.Reader) (Value, error) {
 	v := Value{}
 	v.typ = "array"
 
@@ -81,7 +81,7 @@ func readArray(r *strings.Reader) (Value, error) {
 	return v, nil
 }
 
-func readBulk(r *strings.Reader) (Value, error) { 
+func readBulk(r *bufio.Reader) (Value, error) { 
 	v := Value{}
 	v.typ = "bulk"
 
@@ -103,7 +103,7 @@ func readBulk(r *strings.Reader) (Value, error) {
 	return v, nil
 }
 
-func parse(r *strings.Reader) (Value, error) {
+func parse(r *bufio.Reader) (Value, error) {
 	dataType, err := r.ReadByte()
 	if err != nil {
 		return Value{}, err
