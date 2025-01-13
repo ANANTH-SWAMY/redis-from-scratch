@@ -8,6 +8,7 @@ var handlers = map[string] func([]Value) Value {
 	"PING": ping,
 	"SET": set,
 	"GET": get,
+	"DEL": del,
 	"EXISTS": exists,
 }
 
@@ -130,5 +131,36 @@ func exists(args []Value) Value {
 }
 
 func del(args []Value) Value {
-	return Value{}
+	if len(args) == 0 {
+		v := Value{
+			typ: "error",
+			str: "ERR wrong number of arguments for 'del' command",
+		}
+
+		return v
+	}
+
+	count := 0
+	for i := 0; i < len(args); i++ {
+		key := args[i].bulk
+
+		storeMu.RLock()
+		_, ok := store[key]
+		storeMu.RUnlock()
+
+		if ok {
+			storeMu.Lock()
+			delete(store, key)
+			storeMu.Unlock()
+
+			count++
+		}
+	}
+
+	v := Value{
+		typ: "integer",
+		integer: count,
+	}
+
+	return v
 }
