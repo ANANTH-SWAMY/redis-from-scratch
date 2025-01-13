@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
+	"fmt"
+	"io"
 	"net"
 	"strings"
 )
@@ -16,34 +17,39 @@ func main() {
 
 	fmt.Println("Listening on port 6379...")
 
-	connection, err := listener.Accept()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	defer connection.Close()
-
 	for {
-		resp := bufio.NewReader(connection)
-
-		v, err := parse(resp)
+		connection, err := listener.Accept()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		command := strings.ToUpper(v.array[0].bulk)
-		args := v.array[1:]
+		go func() {
+			resp := bufio.NewReader(connection)
+			defer connection.Close()
 
-		handler, ok := handlers[command]
-		if !ok {
-			// change later
-			connection.Write(writeRESP(Value{typ: "string", str: "OK"}))
-			continue
-		}
+			for {
+				v, err := parse(resp)
+				if err != nil {
+					if err == io.EOF {
+						return
+					}
+					fmt.Println(err)
+				}
 
-		result := handler(args)
-		connection.Write(writeRESP(result))
+				command := strings.ToUpper(v.array[0].bulk)
+				args := v.array[1:]
+
+				handler, ok := handlers[command]
+				if !ok {
+					// change later
+					connection.Write(writeRESP(Value{typ: "string", str: "OK"}))
+					continue
+				}
+
+				result := handler(args)
+				connection.Write(writeRESP(result))
+			}
+		}()
 	}
 }

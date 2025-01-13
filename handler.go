@@ -5,6 +5,7 @@ var handlers = map[string] func([]Value) Value {
 	"SET": set,
 	"GET": get,
 	"EXISTS": exists,
+	"COMMAND": del,
 }
 
 var store = make(map[string]string)
@@ -117,6 +118,6 @@ func exists(args []Value) Value {
 	return v
 }
 
-func del() {
-	//
+func del(args []Value) Value {
+	return Value{typ: "string", str: "OK"}
 }
