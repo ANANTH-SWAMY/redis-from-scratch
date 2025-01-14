@@ -42,8 +42,7 @@ func main() {
 
 				handler, ok := handlers[command]
 				if !ok {
-					// change later
-					connection.Write(writeRESP(Value{typ: "string", str: "OK"}))
+					connection.Write(writeRESP(unknownCommand(v.array[0].bulk)))
 					continue
 				}
 

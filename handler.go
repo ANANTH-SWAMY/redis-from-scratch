@@ -25,6 +25,15 @@ func wrongNoOfArguments(cmd string) Value {
 	return v
 }
 
+func unknownCommand(cmd string) Value {
+	v := Value{
+		typ: "error",
+		str: fmt.Sprintf("ERR unknown command '%v'", cmd),
+	}
+
+	return v
+}
+
 func ping(args []Value) Value {
 	if len(args) == 0 {
 		v := Value{
@@ -215,7 +224,7 @@ func exists(args []Value) Value {
 	return v
 }
 
-// Placeholder to respond to the initial 'COMMAND DOCS' command sent by redis-cli
+// Placeholder to ignore the initial 'COMMAND DOCS' command sent by redis-cli
 func command(args []Value) Value {
 	v := Value{
 		typ: "string",
