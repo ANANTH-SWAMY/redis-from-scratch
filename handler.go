@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -9,7 +10,17 @@ var handlers = map[string] func([]Value) Value {
 	"SET": set,
 	"GET": get,
 	"DEL": del,
+	"MSET": mset,
 	"EXISTS": exists,
+}
+
+func wrongNoOfArguments(cmd string) Value {
+	v := Value{
+		typ: "error",
+		str: fmt.Sprintf("ERR wrong number of arguments for '%v' command", cmd),
+	}
+
+	return v
 }
 
 func ping(args []Value) Value {
@@ -23,12 +34,7 @@ func ping(args []Value) Value {
 	}
 
 	if len(args) > 1 {
-		v := Value{
-			typ: "error",
-			str: "ERR wrong number of arguments for 'ping' command",
-		}
-
-		return v
+		return wrongNoOfArguments("ping")
 	}
 
 	v := Value{
@@ -39,17 +45,12 @@ func ping(args []Value) Value {
 	return v
 }
 
-var store = make(map[string]string)
+var store = make(map[string]any)
 var storeMu = sync.RWMutex{}
 
 func set(args []Value) Value {
 	if len(args) != 2 {
-		v := Value{
-			typ: "error",
-			str: "ERR wrong number of arguments for 'set' command",
-		}
-
-		return v
+		return wrongNoOfArguments("set")
 	}
 
 	key := args[0].bulk
@@ -67,20 +68,41 @@ func set(args []Value) Value {
 	return v
 }
 
-func get(args []Value) Value {
-	if len(args) != 1 {
-		v := Value{
-			typ: "error",
-			str: "ERR wrong number of arguments for 'get' command",
+func mset(args []Value) Value {
+	if len(args) < 2 {
+		return wrongNoOfArguments("mset")
+	}
+
+	for i := 0; i < len(args); i = i + 2 {
+		if i + 1 >= len(args) {
+			break
 		}
 
-		return v
+		key := args[i].bulk
+		value := args[i+1].bulk
+
+		storeMu.Lock()
+		store[key] = value
+		storeMu.Unlock()
+	}
+
+	v := Value{
+		typ: "string",
+		str: "OK",
+	}
+
+	return v
+}
+
+func get(args []Value) Value {
+	if len(args) != 1 {
+		return wrongNoOfArguments("get")
 	}
 
 	key := args[0].bulk
 
 	storeMu.RLock()
-	value, ok := store[key]
+	value, ok := store[key].(string)
 	storeMu.RUnlock()
 
 	if !ok {
@@ -99,45 +121,13 @@ func get(args []Value) Value {
 	return v
 }
 
-func exists(args []Value) Value {
-	if len(args) == 0 {
-		v := Value{
-			typ: "error",
-			str: "ERR wrong number of arguments for 'exists' command",
-		}
-
-		return v
-	}
-
-	count := 0
-	for i := 0; i < len(args); i++ {
-		key := args[i].bulk
-
-		storeMu.RLock()
-		_, ok := store[key]
-		storeMu.RUnlock()
-
-		if ok {
-			count++
-		}
-	}
-
-	v := Value{
-		typ: "integer",
-		integer: count,
-	}
-	
-	return v
+func mget(args []Value) Value {
+	return Value{}
 }
 
 func del(args []Value) Value {
 	if len(args) == 0 {
-		v := Value{
-			typ: "error",
-			str: "ERR wrong number of arguments for 'del' command",
-		}
-
-		return v
+		return wrongNoOfArguments("del")
 	}
 
 	count := 0
@@ -162,5 +152,31 @@ func del(args []Value) Value {
 		integer: count,
 	}
 
+	return v
+}
+
+func exists(args []Value) Value {
+	if len(args) == 0 {
+		return wrongNoOfArguments("exists")
+	}
+
+	count := 0
+	for i := 0; i < len(args); i++ {
+		key := args[i].bulk
+
+		storeMu.RLock()
+		_, ok := store[key]
+		storeMu.RUnlock()
+
+		if ok {
+			count++
+		}
+	}
+
+	v := Value{
+		typ: "integer",
+		integer: count,
+	}
+	
 	return v
 }

@@ -1,10 +1,14 @@
 [x] SET
 [x] GET
-[] MSET
+[x] MSET
 [] MGET
+[] HSET
+[] HGET
 [x] PING
 [x] EXISTS
-[] DEL
-[] FLUSH
+[] HEXISTS
+[x] DEL
+[] HDEL
 [x] QUIT / EXIT
 [] Placeholder for COMMAND and DOCS
+[] Persistence
