@@ -13,6 +13,7 @@ var handlers = map[string] func([]Value) Value {
 	"MSET": mset,
 	"MGET": mget,
 	"EXISTS": exists,
+	"COMMAND": command,
 }
 
 func wrongNoOfArguments(cmd string) Value {
@@ -211,5 +212,15 @@ func exists(args []Value) Value {
 		integer: count,
 	}
 	
+	return v
+}
+
+// Placeholder to respond to the initial 'COMMAND DOCS' command sent by redis-cli
+func command(args []Value) Value {
+	v := Value{
+		typ: "string",
+		str: "OK",
+	}
+
 	return v
 }

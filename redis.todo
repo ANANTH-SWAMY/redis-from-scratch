@@ -1,7 +1,7 @@
 [x] SET
 [x] GET
 [x] MSET
-[] MGET
+[x] MGET
 [] HSET
 [] HGET
 [x] PING
