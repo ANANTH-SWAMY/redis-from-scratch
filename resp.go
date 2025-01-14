@@ -173,6 +173,9 @@ func writeArray(v Value) []byte {
 
 		case "integer":
 			bytesToBeAppended = writeInteger(element)
+	
+		case "null":
+			bytesToBeAppended = writeNull()
 
 		case "array":
 			bytesToBeAppended = writeArray(element)
