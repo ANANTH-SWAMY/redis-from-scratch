@@ -11,6 +11,7 @@ var handlers = map[string] func([]Value) Value {
 	"GET": get,
 	"DEL": del,
 	"MSET": mset,
+	"MGET": mget,
 	"EXISTS": exists,
 }
 
@@ -122,7 +123,39 @@ func get(args []Value) Value {
 }
 
 func mget(args []Value) Value {
-	return Value{}
+	if len(args) == 0 {
+		return wrongNoOfArguments("mget")
+	}
+
+	v := Value{
+		typ: "array",
+		array: make([]Value, 0),
+	}
+
+	for i := 0; i < len(args); i++ {
+		key := args[i].bulk
+
+		storeMu.RLock()
+		value, ok := store[key].(string)
+		storeMu.RUnlock()
+
+		if ok {
+			newElement := Value{
+				typ: "bulk",
+				bulk: value,
+			}
+
+			v.array = append(v.array, newElement)
+		} else {
+			newElement := Value{
+				typ: "null",
+			}
+
+			v.array = append(v.array, newElement)
+		}
+	}
+
+	return v
 }
 
 func del(args []Value) Value {

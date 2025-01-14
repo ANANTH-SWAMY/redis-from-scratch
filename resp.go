@@ -151,6 +151,39 @@ func writeInteger(v Value) []byte {
 	return bytes
 }
 
+func writeArray(v Value) []byte {
+	bytes := make([]byte, 0)
+
+	array := v.array
+
+	bytes = append(bytes, ARRAY)
+	bytes = append(bytes, strconv.Itoa(len(array))...)
+	bytes = append(bytes, '\r', '\n')
+
+	for i := 0; i < len(array); i++ {
+		element := array[i]
+		bytesToBeAppended := make([]byte, 0)
+
+		switch element.typ {
+		case "string":
+			bytesToBeAppended = writeString(element)
+
+		case "bulk":
+			bytesToBeAppended = writeBulk(element)
+
+		case "integer":
+			bytesToBeAppended = writeInteger(element)
+
+		case "array":
+			bytesToBeAppended = writeArray(element)
+		}
+
+		bytes = append(bytes, bytesToBeAppended...)
+	}
+
+	return bytes
+}
+
 func writeError(v Value) []byte {
 	bytes := make([]byte, 0)
 
@@ -182,6 +215,9 @@ func writeRESP(v Value) []byte {
 
 	case "integer":
 		return writeInteger(v)
+
+	case "array":
+		return writeArray(v)
 
 	case "error":
 		return writeError(v)
