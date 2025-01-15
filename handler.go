@@ -60,6 +60,7 @@ func ping(args []Value) Value {
 type storeValue struct {
 	bulk string
 	hashStore map[string]string
+	isHash bool
 }
 
 var store = make(map[string]storeValue)
@@ -74,7 +75,7 @@ func set(args []Value) Value {
 	value := args[1].bulk
 
 	storeMu.Lock()
-	store[key] = storeValue{bulk: value}
+	store[key] = storeValue{bulk: value, isHash: false}
 	storeMu.Unlock()
 
 	v := Value{
@@ -99,7 +100,7 @@ func mset(args []Value) Value {
 		value := args[i+1].bulk
 
 		storeMu.Lock()
-		store[key] = storeValue{bulk: value}
+		store[key] = storeValue{bulk: value, isHash: false}
 		storeMu.Unlock()
 	}
 
@@ -129,6 +130,15 @@ func get(args []Value) Value {
 
 		return v
 	}
+
+	if value.isHash{
+		v := Value{
+			typ: "error",
+			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
+		}
+
+		return v
+	}	
 
 	v := Value{
 		typ: "bulk",
@@ -231,9 +241,52 @@ func exists(args []Value) Value {
 }
 
 func hset(args []Value) Value {
+	if len(args) < 3 {
+		return wrongNoOfArguments("hset")
+	}
+
+	hash := args[0].bulk
+	args = args[1:]
+
+	if len(args) % 2 != 0 {
+		return wrongNoOfArguments("hset")
+	}
+
+	storeMu.RLock()
+	_, ok := store[hash]
+	storeMu.RUnlock()
+
+	if !ok || store[hash].isHash == false {
+		storeMu.Lock()
+
+		store[hash] = storeValue{
+			hashStore: make(map[string]string),
+			isHash: true,
+		}
+
+		storeMu.Unlock()
+	}
+
+	count := 0
+
+	for i := 0; i < len(args); i = i + 2 {
+		key := args[i].bulk
+		value := args[i+1].bulk
+
+		storeMu.RLock()
+		_, ok := store[hash].hashStore[key]
+		storeMu.RUnlock()
+
+		store[hash].hashStore[key] = value
+
+		if !ok {
+			count ++
+		}
+	}
+
 	v := Value{
 		typ: "integer",
-		integer: 0,
+		integer: count,
 	}
 
 	return v
