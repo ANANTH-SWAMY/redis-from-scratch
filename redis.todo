@@ -2,7 +2,7 @@
 [x] GET
 [x] MSET
 [x] MGET
-[] HSET
+[x] HSET
 [] HGET
 [x] PING
 [x] EXISTS

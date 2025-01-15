@@ -165,7 +165,7 @@ func mget(args []Value) Value {
 		value, ok := store[key]
 		storeMu.RUnlock()
 
-		if ok {
+		if ok && !value.isHash {
 			newElement := Value{
 				typ: "bulk",
 				bulk: value.bulk,
@@ -277,7 +277,9 @@ func hset(args []Value) Value {
 		_, ok := store[hash].hashStore[key]
 		storeMu.RUnlock()
 
+		storeMu.Lock()
 		store[hash].hashStore[key] = value
+		storeMu.Unlock()
 
 		if !ok {
 			count ++
@@ -290,7 +292,6 @@ func hset(args []Value) Value {
 	}
 
 	return v
-
 }
 
 func hget() {
