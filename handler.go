@@ -12,6 +12,7 @@ var handlers = map[string] func([]Value) Value {
 	"DEL": del,
 	"MSET": mset,
 	"MGET": mget,
+	"HSET": hset,
 	"EXISTS": exists,
 	"COMMAND": command,
 }
@@ -56,7 +57,12 @@ func ping(args []Value) Value {
 	return v
 }
 
-var store = make(map[string]any)
+type storeValue struct {
+	bulk string
+	hashStore map[string]string
+}
+
+var store = make(map[string]storeValue)
 var storeMu = sync.RWMutex{}
 
 func set(args []Value) Value {
@@ -68,7 +74,7 @@ func set(args []Value) Value {
 	value := args[1].bulk
 
 	storeMu.Lock()
-	store[key] = value
+	store[key] = storeValue{bulk: value}
 	storeMu.Unlock()
 
 	v := Value{
@@ -93,7 +99,7 @@ func mset(args []Value) Value {
 		value := args[i+1].bulk
 
 		storeMu.Lock()
-		store[key] = value
+		store[key] = storeValue{bulk: value}
 		storeMu.Unlock()
 	}
 
@@ -113,7 +119,7 @@ func get(args []Value) Value {
 	key := args[0].bulk
 
 	storeMu.RLock()
-	value, ok := store[key].(string)
+	value, ok := store[key]
 	storeMu.RUnlock()
 
 	if !ok {
@@ -126,7 +132,7 @@ func get(args []Value) Value {
 
 	v := Value{
 		typ: "bulk",
-		bulk: value,
+		bulk: value.bulk,
 	}
 
 	return v
@@ -146,13 +152,13 @@ func mget(args []Value) Value {
 		key := args[i].bulk
 
 		storeMu.RLock()
-		value, ok := store[key].(string)
+		value, ok := store[key]
 		storeMu.RUnlock()
 
 		if ok {
 			newElement := Value{
 				typ: "bulk",
-				bulk: value,
+				bulk: value.bulk,
 			}
 
 			v.array = append(v.array, newElement)
@@ -222,6 +228,28 @@ func exists(args []Value) Value {
 	}
 	
 	return v
+}
+
+func hset(args []Value) Value {
+	v := Value{
+		typ: "integer",
+		integer: 0,
+	}
+
+	return v
+
+}
+
+func hget() {
+	//
+}
+
+func hdel() {
+	//
+}
+
+func hexists() {
+	//
 }
 
 // Placeholder to ignore the initial 'COMMAND DOCS' command sent by redis-cli
