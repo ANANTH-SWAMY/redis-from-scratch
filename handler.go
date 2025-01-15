@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sync"
 )
 
 var handlers = map[string] func([]Value) Value {
@@ -16,6 +15,7 @@ var handlers = map[string] func([]Value) Value {
 	"HGET": hget,
 	"HDEL": hdel,
 	"EXISTS": exists,
+	"HEXISTS": hexists,
 	"COMMAND": command,
 }
 
@@ -58,15 +58,6 @@ func ping(args []Value) Value {
 
 	return v
 }
-
-type storeValue struct {
-	bulk string
-	hashStore map[string]string
-	isHash bool
-}
-
-var store = make(map[string]storeValue)
-var storeMu = sync.RWMutex{}
 
 func set(args []Value) Value {
 	if len(args) != 2 {
@@ -411,7 +402,54 @@ func hdel(args []Value) Value {
 }
 
 func hexists(args []Value) Value {
-	return Value{}
+	if len(args) != 2 {
+		return wrongNoOfArguments("hexists")
+	}
+
+	key := args[0].bulk
+	field := args[1].bulk
+
+	storeMu.RLock()
+	hashStore, ok := store[key]
+	storeMu.RUnlock()
+
+	if !ok {
+		v := Value{
+			typ: "integer",
+			integer: 0,
+		}
+
+		return v
+	}
+
+	if !hashStore.isHash {
+		v := Value{
+			typ: "error",
+			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
+		}
+
+		return v
+	}
+
+	storeMu.RLock()
+	_, ok = hashStore.hashStore[field]
+	storeMu.RUnlock()
+
+	if !ok {
+		v := Value{
+			typ: "integer",
+			integer: 0,
+		}
+
+		return v
+	}
+
+	v := Value{
+		typ: "integer",
+		integer: 1,
+	}
+
+	return v
 }
 
 // Placeholder to ignore the initial 'COMMAND DOCS' command sent by redis-cli
