@@ -3,7 +3,8 @@
 [x] MSET
 [x] MGET
 [x] HSET
-[] HGET
+[x] HGET
+[] HMGET
 [x] PING
 [x] EXISTS
 [] HEXISTS

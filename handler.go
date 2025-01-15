@@ -13,6 +13,7 @@ var handlers = map[string] func([]Value) Value {
 	"MSET": mset,
 	"MGET": mget,
 	"HSET": hset,
+	"HGET": hget,
 	"EXISTS": exists,
 	"COMMAND": command,
 }
@@ -245,7 +246,7 @@ func hset(args []Value) Value {
 		return wrongNoOfArguments("hset")
 	}
 
-	hash := args[0].bulk
+	key := args[0].bulk
 	args = args[1:]
 
 	if len(args) % 2 != 0 {
@@ -253,13 +254,13 @@ func hset(args []Value) Value {
 	}
 
 	storeMu.RLock()
-	_, ok := store[hash]
+	_, ok := store[key]
 	storeMu.RUnlock()
 
-	if !ok || store[hash].isHash == false {
+	if !ok || store[key].isHash == false {
 		storeMu.Lock()
 
-		store[hash] = storeValue{
+		store[key] = storeValue{
 			hashStore: make(map[string]string),
 			isHash: true,
 		}
@@ -270,15 +271,15 @@ func hset(args []Value) Value {
 	count := 0
 
 	for i := 0; i < len(args); i = i + 2 {
-		key := args[i].bulk
+		field := args[i].bulk
 		value := args[i+1].bulk
 
 		storeMu.RLock()
-		_, ok := store[hash].hashStore[key]
+		_, ok := store[key].hashStore[field]
 		storeMu.RUnlock()
 
 		storeMu.Lock()
-		store[hash].hashStore[key] = value
+		store[key].hashStore[field] = value
 		storeMu.Unlock()
 
 		if !ok {
@@ -294,8 +295,53 @@ func hset(args []Value) Value {
 	return v
 }
 
-func hget() {
-	//
+func hget(args []Value) Value {
+	if len(args) != 2 {
+		return wrongNoOfArguments("hget")
+	}
+
+	key := args[0].bulk
+	field := args[1].bulk
+
+	storeMu.RLock()
+	hashStore, ok := store[key]
+	storeMu.RUnlock()
+
+	if !ok {
+		v := Value{
+			typ: "null",
+		}
+
+		return v
+	}
+
+	if !hashStore.isHash {
+		v := Value{
+			typ: "error",
+			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
+		}
+
+		return v
+	}
+
+	storeMu.RLock()
+	val, ok := hashStore.hashStore[field]
+	storeMu.RUnlock()
+
+	if !ok {
+		v := Value{
+			typ: "null",
+		}
+
+		return v
+	}
+
+	v := Value{
+		typ: "bulk",
+		bulk: val,
+	}
+
+	return v
 }
 
 func hdel() {
