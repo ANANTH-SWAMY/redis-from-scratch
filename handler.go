@@ -14,6 +14,7 @@ var handlers = map[string] func([]Value) Value {
 	"MGET": mget,
 	"HSET": hset,
 	"HGET": hget,
+	"HDEL": hdel,
 	"EXISTS": exists,
 	"COMMAND": command,
 }
@@ -257,7 +258,7 @@ func hset(args []Value) Value {
 	_, ok := store[key]
 	storeMu.RUnlock()
 
-	if !ok || store[key].isHash == false {
+	if !ok {
 		storeMu.Lock()
 
 		store[key] = storeValue{
@@ -266,6 +267,15 @@ func hset(args []Value) Value {
 		}
 
 		storeMu.Unlock()
+	}
+
+	if store[key].isHash == false {
+		v := Value{
+			typ: "error",
+			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
+		}
+
+		return v
 	}
 
 	count := 0
@@ -344,12 +354,64 @@ func hget(args []Value) Value {
 	return v
 }
 
-func hdel() {
-	//
+func hdel(args []Value) Value {
+	if len(args) < 2 {
+		return wrongNoOfArguments("hdel")
+	}
+
+	key := args[0].bulk
+	fields := args[1:]
+
+	storeMu.RLock()
+	hashStore, ok := store[key]
+	storeMu.RUnlock()
+
+	if !ok {
+		v := Value{
+			typ: "integer",
+			integer: 0,
+		}
+
+		return v
+	}
+
+	if !hashStore.isHash {
+		v := Value{
+			typ: "error",
+			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
+		}
+
+		return v
+	}
+
+	count := 0
+
+	for i := 0; i < len(fields); i++ {
+		field := fields[i].bulk
+
+		storeMu.RLock()
+		_, ok := store[key].hashStore[field]
+		storeMu.RUnlock()
+
+		if ok {
+			storeMu.Lock()
+			delete(store[key].hashStore, field)
+			storeMu.Unlock()
+
+			count++
+		}
+	}
+
+	v := Value{
+		typ: "integer",
+		integer: count,
+	}
+
+	return v
 }
 
-func hexists() {
-	//
+func hexists(args []Value) Value {
+	return Value{}
 }
 
 // Placeholder to ignore the initial 'COMMAND DOCS' command sent by redis-cli
