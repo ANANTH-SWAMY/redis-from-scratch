@@ -1,5 +1,5 @@
 # Redis from scratch
-Stripped down of redis written as a hobby project.
+Stripped down version of redis written as a hobby project.
 
 ## Supported commands
 - PING
