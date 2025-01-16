@@ -11,7 +11,7 @@ go run .
 ```
 go build . && ./redis
 ```
-- Connect to the server with any redis client
+- Connect to the server with any redis client. For example, `redis-cli`
 ```
 $ redis-cli
 ```
