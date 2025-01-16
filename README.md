@@ -1,6 +1,9 @@
 # Redis from scratch
 A stripped down redis-server clone written as a hobby project. It is not intended to be used in production. No external dependencies were used for development.
 
+## Prequisites
+Have Go installed.
+
 ## Usage
 - Clone the repo
 - Run by executing 
@@ -11,7 +14,7 @@ go run .
 ```
 go build . && ./redis
 ```
-- Connect to the server with any redis client. For example, `redis-cli`
+- Connect to the server with any redis client. For example, `redis-cli`. The server listens on port `6379` by default.
 ```
 $ redis-cli
 ```
@@ -30,4 +33,4 @@ $ redis-cli
 - HEXISTS
 
 ## Persistence
-At the moment, persistence isn't implemented.
+Persistence isn't implemented at the moment.
