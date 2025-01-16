@@ -33,4 +33,4 @@ $ redis-cli
 - HEXISTS
 
 ## Persistence
-Persistence isn't implemented at the moment.
+Persistence is yet to be implemented.
