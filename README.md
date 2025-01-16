@@ -1,5 +1,5 @@
 # Redis from scratch
-A stripped down redis-server clone written as a hobby project. It is not intended to be used in production. No external dependencies were used to develop this.
+A stripped down redis-server clone written as a hobby project. It is not intended to be used in production. No external dependencies were used for development.
 
 ## Usage
 - Clone the repo
@@ -11,7 +11,7 @@ go run .
 ```
 go build . && ./redis
 ```
-- Connect to the server with a redis client
+- Connect to the server with any redis client
 ```
 $ redis-cli
 ```
