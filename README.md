@@ -7,7 +7,7 @@ A stripped down redis-server clone written as a hobby project. It is not intende
 ```
 go run .
 ```
-- Or build using 
+- Or build and run using 
 ```
 go build . && ./redis
 ```
