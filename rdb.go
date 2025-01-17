@@ -1,18 +1,18 @@
 package main
 
 import (
+	"bytes"
+	"encoding/gob"
 	"os"
 	"sync"
 	_ "time"
-	"bytes"
-	"encoding/gob"
 )
 
 var rdbFile *os.File
 var rdbMu sync.RWMutex = sync.RWMutex{}
 
 func openRdb() error {
-	file, err := os.OpenFile("dump.rdb", os.O_CREATE | os.O_RDWR, 0666)
+	file, err := os.OpenFile("dump.rdb", os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		return err
 	}
