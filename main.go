@@ -37,6 +37,10 @@ func main() {
 					fmt.Println(err)
 				}
 
+				if reflect.DeepEqual(v, Value{}) {
+					continue
+				}
+
 				command := strings.ToUpper(v.array[0].bulk)
 				args := v.array[1:]
 
