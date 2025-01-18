@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"encoding/gob"
+	_ "bytes"
+	_ "encoding/gob"
 	"os"
 	"sync"
 	_ "time"
@@ -26,21 +26,4 @@ func closeRdb() error {
 	err := rdbFile.Close()
 
 	return err
-}
-
-func readRdb() error {
-	b := new(bytes.Buffer)
-
-	decoder := gob.NewDecoder(b)
-
-	err := decoder.Decode(&store)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func rdb() {
-	//
 }

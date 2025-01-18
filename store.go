@@ -5,9 +5,9 @@ import(
 )
 
 type storeValue struct {
-	bulk string
-	hashStore map[string]string
-	isHash bool
+	Bulk string
+	HashStore map[string]string
+	IsHash bool
 }
 
 var store = make(map[string]storeValue)

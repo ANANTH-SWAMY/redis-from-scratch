@@ -68,7 +68,7 @@ func set(args []Value) Value {
 	value := args[1].bulk
 
 	storeMu.Lock()
-	store[key] = storeValue{bulk: value, isHash: false}
+	store[key] = storeValue{Bulk: value, IsHash: false}
 	storeMu.Unlock()
 
 	v := Value{
@@ -93,7 +93,7 @@ func mset(args []Value) Value {
 		value := args[i+1].bulk
 
 		storeMu.Lock()
-		store[key] = storeValue{bulk: value, isHash: false}
+		store[key] = storeValue{Bulk: value, IsHash: false}
 		storeMu.Unlock()
 	}
 
@@ -124,7 +124,7 @@ func get(args []Value) Value {
 		return v
 	}
 
-	if value.isHash{
+	if value.IsHash{
 		v := Value{
 			typ: "error",
 			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
@@ -135,7 +135,7 @@ func get(args []Value) Value {
 
 	v := Value{
 		typ: "bulk",
-		bulk: value.bulk,
+		bulk: value.Bulk,
 	}
 
 	return v
@@ -158,10 +158,10 @@ func mget(args []Value) Value {
 		value, ok := store[key]
 		storeMu.RUnlock()
 
-		if ok && !value.isHash {
+		if ok && !value.IsHash {
 			newElement := Value{
 				typ: "bulk",
-				bulk: value.bulk,
+				bulk: value.Bulk,
 			}
 
 			v.array = append(v.array, newElement)
@@ -253,14 +253,14 @@ func hset(args []Value) Value {
 		storeMu.Lock()
 
 		store[key] = storeValue{
-			hashStore: make(map[string]string),
-			isHash: true,
+			HashStore: make(map[string]string),
+			IsHash: true,
 		}
 
 		storeMu.Unlock()
 	}
 
-	if store[key].isHash == false {
+	if store[key].IsHash == false {
 		v := Value{
 			typ: "error",
 			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
@@ -276,11 +276,11 @@ func hset(args []Value) Value {
 		value := args[i+1].bulk
 
 		storeMu.RLock()
-		_, ok := store[key].hashStore[field]
+		_, ok := store[key].HashStore[field]
 		storeMu.RUnlock()
 
 		storeMu.Lock()
-		store[key].hashStore[field] = value
+		store[key].HashStore[field] = value
 		storeMu.Unlock()
 
 		if !ok {
@@ -305,7 +305,7 @@ func hget(args []Value) Value {
 	field := args[1].bulk
 
 	storeMu.RLock()
-	hashStore, ok := store[key]
+	HashStore, ok := store[key]
 	storeMu.RUnlock()
 
 	if !ok {
@@ -316,7 +316,7 @@ func hget(args []Value) Value {
 		return v
 	}
 
-	if !hashStore.isHash {
+	if !HashStore.IsHash {
 		v := Value{
 			typ: "error",
 			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
@@ -326,7 +326,7 @@ func hget(args []Value) Value {
 	}
 
 	storeMu.RLock()
-	val, ok := hashStore.hashStore[field]
+	val, ok := HashStore.HashStore[field]
 	storeMu.RUnlock()
 
 	if !ok {
@@ -354,7 +354,7 @@ func hdel(args []Value) Value {
 	fields := args[1:]
 
 	storeMu.RLock()
-	hashStore, ok := store[key]
+	HashStore, ok := store[key]
 	storeMu.RUnlock()
 
 	if !ok {
@@ -366,7 +366,7 @@ func hdel(args []Value) Value {
 		return v
 	}
 
-	if !hashStore.isHash {
+	if !HashStore.IsHash {
 		v := Value{
 			typ: "error",
 			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
@@ -381,12 +381,12 @@ func hdel(args []Value) Value {
 		field := fields[i].bulk
 
 		storeMu.RLock()
-		_, ok := store[key].hashStore[field]
+		_, ok := store[key].HashStore[field]
 		storeMu.RUnlock()
 
 		if ok {
 			storeMu.Lock()
-			delete(store[key].hashStore, field)
+			delete(store[key].HashStore, field)
 			storeMu.Unlock()
 
 			count++
@@ -410,7 +410,7 @@ func hexists(args []Value) Value {
 	field := args[1].bulk
 
 	storeMu.RLock()
-	hashStore, ok := store[key]
+	HashStore, ok := store[key]
 	storeMu.RUnlock()
 
 	if !ok {
@@ -422,7 +422,7 @@ func hexists(args []Value) Value {
 		return v
 	}
 
-	if !hashStore.isHash {
+	if !HashStore.IsHash {
 		v := Value{
 			typ: "error",
 			str: "WRONGTYPE Operation against a key holding the wrong kind of value",
@@ -432,7 +432,7 @@ func hexists(args []Value) Value {
 	}
 
 	storeMu.RLock()
-	_, ok = hashStore.hashStore[field]
+	_, ok = HashStore.HashStore[field]
 	storeMu.RUnlock()
 
 	if !ok {
