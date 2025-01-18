@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-var handlers = map[string] func([]Value) Value {
-	"PING": ping,
-	"SET": set,
-	"GET": get,
-	"DEL": del,
-	"MSET": mset,
-	"MGET": mget,
-	"HSET": hset,
-	"HGET": hget,
-	"HDEL": hdel,
-	"EXISTS": exists,
+var handlers = map[string]func([]Value) Value{
+	"PING":    ping,
+	"SET":     set,
+	"GET":     get,
+	"DEL":     del,
+	"MGET":    mget,
+	"MSET":    mset,
+	"HSET":    hset,
+	"HGET":    hget,
+	"HDEL":    hdel,
+	"EXISTS":  exists,
 	"HEXISTS": hexists,
 	"COMMAND": command,
 }
