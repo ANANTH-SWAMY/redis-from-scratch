@@ -18,6 +18,8 @@ func main() {
 
 	fmt.Println("Listening on port 6379...")
 
+	initializeRdb()
+
 	for {
 		connection, err := listener.Accept()
 		if err != nil {
