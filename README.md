@@ -33,4 +33,4 @@ $ redis-cli
 - HEXISTS
 
 ## Persistence
-Persistence is yet to be implemented.
+The `encoding/gob` package is used to asynchronously create a dump of the store in a binary file called dump.rdb every one second. This dump.rdb file is used to restore the data when then server is restarted in the same directory.
